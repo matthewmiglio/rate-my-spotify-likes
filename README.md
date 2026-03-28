@@ -2,6 +2,10 @@
 
 Rate every song in your Spotify liked library on a 1–7 scale, view stats, and bulk-unlike the ones that don't make the cut.
 
+<img width="1893" height="898" alt="image" src="https://github.com/user-attachments/assets/475ce4e4-560e-4c75-bab8-99fb28be539c" />
+<img width="1893" height="898" alt="image" src="https://github.com/user-attachments/assets/ff967ff2-095a-4b9c-b778-667461f44067" />
+
+
 ## Architecture
 
 ```
