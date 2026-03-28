@@ -1,0 +1,15 @@
+# Claude Code
+/.claude/
+
+# Supabase (contains local config with service role keys)
+/supabase/
+
+# Docs
+/docs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env*
