@@ -1,8 +1,6 @@
 export default function Home() {
   return (
-    <main className="relative z-10 flex flex-1 flex-col items-center justify-center gap-10 p-8"
-      style={{ background: 'linear-gradient(135deg, #1db954 0%, #121212 50%, #1db954 100%)' }}
-    >
+    <main className="relative z-10 flex flex-1 flex-col items-center justify-center gap-10 p-8">
       <div className="text-center">
         <div className="mb-6 inline-block rounded-full border border-white/20 bg-white/10 px-8 py-2 text-sm font-bold uppercase tracking-[4px] backdrop-blur-sm">
           Your Library
