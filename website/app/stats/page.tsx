@@ -161,15 +161,6 @@ export default function StatsPage() {
       .map(([name, count]) => ({ name, count }))
   }, [songs])
 
-  // 7. Rating Pace (by day)
-  const ratingPace = useMemo(() => {
-    const map = new Map<string, number>()
-    for (const s of rated) {
-      const day = s.ratings[0].updated_at?.slice(0, 10)
-      if (day) map.set(day, (map.get(day) || 0) + 1)
-    }
-    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
-  }, [rated])
 
   // 8. Library Timeline (by month)
   const libraryTimeline = useMemo(() => {
@@ -205,24 +196,6 @@ export default function StatsPage() {
       }))
   }, [songs])
 
-  // 10. Artist Polarization (widest spread, min 3 rated)
-  const polarized = useMemo(() => {
-    const map = new Map<string, number[]>()
-    for (const s of rated) {
-      const arr = map.get(s.artist_name) || []
-      arr.push(s.ratings[0].rating)
-      map.set(s.artist_name, arr)
-    }
-    return [...map.entries()]
-      .filter(([, ratings]) => ratings.length >= 3)
-      .map(([name, ratings]) => {
-        const min = Math.min(...ratings)
-        const max = Math.max(...ratings)
-        return { name, min, max, spread: max - min, count: ratings.length }
-      })
-      .sort((a, b) => b.spread - a.spread || b.count - a.count)
-      .slice(0, 10)
-  }, [rated])
 
   // 3. Top Rated Songs
   const topSongs = useMemo(
@@ -251,7 +224,6 @@ export default function StatsPage() {
   }
 
   const maxDist = Math.max(...Object.values(distribution), 1)
-  const maxPace = Math.max(...ratingPace.map(([, c]) => c), 1)
 
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center gap-8 p-6 md:p-8">
@@ -399,31 +371,7 @@ export default function StatsPage() {
         </div>
       </div>
 
-      {/* 7. Rating Pace */}
-      <div className="glass-card w-full max-w-3xl p-6">
-        <h2 className="mb-4 text-sm font-black uppercase tracking-wider text-white/50">Rating Pace</h2>
-        {ratingPace.length > 0 ? (
-          <div className="flex items-end gap-1 overflow-x-auto" style={{ height: 120 }}>
-            {ratingPace.map(([day, count]) => (
-              <div key={day} className="group relative flex flex-col items-center" style={{ minWidth: ratingPace.length > 20 ? 12 : 32 }}>
-                <div className="flex w-full items-end overflow-hidden rounded-t bg-white/5" style={{ height: 100 }}>
-                  <div
-                    className="w-full rounded-t bg-spotify"
-                    style={{ height: `${(count / maxPace) * 100}%` }}
-                  />
-                </div>
-                <div className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded bg-black/80 px-2 py-1 text-xs font-bold opacity-0 transition group-hover:opacity-100 whitespace-nowrap">
-                  {day}: {count}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-white/30">No ratings yet</p>
-        )}
-      </div>
-
-      {/* 8. Library Timeline */}
+      {/* Library Timeline */}
       <div className="glass-card w-full max-w-3xl p-6">
         <h2 className="mb-4 text-sm font-black uppercase tracking-wider text-white/50">Library Timeline</h2>
         {libraryTimeline.length > 0 ? (
@@ -448,39 +396,6 @@ export default function StatsPage() {
               <span className="text-sm font-black text-spotify">{a.count} songs</span>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* 10. Artist Polarization */}
-      <div className="glass-card w-full max-w-3xl p-6">
-        <h2 className="mb-4 text-sm font-black uppercase tracking-wider text-white/50">Most Polarizing Artists <span className="font-semibold text-white/30">(min 3 rated)</span></h2>
-        <div className="space-y-3">
-          {polarized.map((a) => (
-            <div key={a.name} className="flex items-center gap-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
-                  <p className="truncate text-sm font-bold">{a.name}</p>
-                  <span className="ml-2 text-xs font-semibold text-white/40">{a.count} songs</span>
-                </div>
-                {/* Range bar showing min to max */}
-                <div className="relative mt-1.5 h-2 overflow-hidden rounded-full bg-white/5">
-                  <div
-                    className="absolute h-full rounded-full"
-                    style={{
-                      left: `${((a.min - 1) / 6) * 100}%`,
-                      width: `${((a.spread) / 6) * 100}%`,
-                      background: 'linear-gradient(90deg, #ef4444, #1DB954)',
-                    }}
-                  />
-                </div>
-                <div className="mt-1 flex justify-between text-xs font-bold">
-                  <span className="text-red-400">Low: {a.min}</span>
-                  <span className="text-spotify">High: {a.max}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-          {polarized.length === 0 && <p className="text-sm text-white/30">Rate at least 3 songs per artist</p>}
         </div>
       </div>
 

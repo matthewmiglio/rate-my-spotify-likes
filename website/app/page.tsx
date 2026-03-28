@@ -21,20 +21,14 @@ export default function Home() {
         Login with Spotify
       </a>
 
-      <div className="mt-4 flex gap-6">
-        {[
-          { step: '1', text: 'Login with Spotify' },
-          { step: '2', text: 'Rate your songs 1–7' },
-          { step: '3', text: 'Purge the rest' },
-        ].map((item) => (
-          <div
-            key={item.step}
-            className="glass-card flex flex-col items-center gap-2 px-6 py-4 text-center"
-          >
-            <span className="text-2xl font-black text-spotify">{item.step}</span>
-            <span className="text-sm font-semibold text-white/70">{item.text}</span>
-          </div>
-        ))}
+      <div className="mt-2 flex items-center gap-3 text-sm font-semibold text-white/40">
+        <span>Login</span>
+        <span className="text-spotify">→</span>
+        <span>Listen</span>
+        <span className="text-spotify">→</span>
+        <span>Rate 1–7</span>
+        <span className="text-spotify">→</span>
+        <span>Purge</span>
       </div>
     </main>
   )

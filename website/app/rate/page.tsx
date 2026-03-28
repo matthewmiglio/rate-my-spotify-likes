@@ -27,6 +27,7 @@ export default function RatePage() {
   const [user, setUser] = useState<User | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
+  const noPreviewSetRef = useRef<Set<string>>(new Set())
   const audioRef = useRef<HTMLAudioElement>(null)
   const volumeRef = useRef(parseFloat(typeof window !== 'undefined' ? localStorage.getItem('rater-volume') ?? '0.3' : '0.3'))
 
@@ -83,9 +84,20 @@ export default function RatePage() {
     fetch(`/api/preview/${trackId}`)
       .then((res) => res.json())
       .then((data) => {
-        if (!cancelled) {
+        if (cancelled) return
+        if (data.preview_url) {
           setPreviewUrl(data.preview_url)
           setPreviewLoading(false)
+        } else {
+          // No preview — mark and auto-skip
+          noPreviewSetRef.current.add(trackId)
+          setPreviewLoading(false)
+          setCurrentIndex((prev) => {
+            const next = songs.findIndex(
+              (s, i) => i > prev && (!s.ratings || s.ratings.length === 0) && !noPreviewSetRef.current.has(s.spotify_track_id)
+            )
+            return next === -1 ? songs.length : next
+          })
         }
       })
       .catch(() => {
@@ -155,7 +167,7 @@ export default function RatePage() {
     setSongs(updated)
 
     const nextIdx = updated.findIndex(
-      (s, i) => i > currentIndex && (!s.ratings || s.ratings.length === 0)
+      (s, i) => i > currentIndex && (!s.ratings || s.ratings.length === 0) && !noPreviewSetRef.current.has(s.spotify_track_id)
     )
     setCurrentIndex(nextIdx === -1 ? updated.length : nextIdx)
   }
@@ -193,7 +205,7 @@ export default function RatePage() {
     setSongs(updated)
     // currentIndex now points to the next song (since we spliced the current one out)
     const nextIdx = updated.findIndex(
-      (s, i) => i >= currentIndex && (!s.ratings || s.ratings.length === 0)
+      (s, i) => i >= currentIndex && (!s.ratings || s.ratings.length === 0) && !noPreviewSetRef.current.has(s.spotify_track_id)
     )
     setCurrentIndex(nextIdx === -1 ? updated.length : nextIdx)
   }
@@ -206,7 +218,8 @@ export default function RatePage() {
     )
   }
 
-  const totalSongs = songs.length
+  const skippedCount = noPreviewSetRef.current.size
+  const totalSongs = songs.length - skippedCount
   const ratedCount = songs.filter((s) => s.ratings && s.ratings.length > 0).length
   const allDone = !song || currentIndex >= songs.length
 
